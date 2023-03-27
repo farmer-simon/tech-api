@@ -1,0 +1,15 @@
+TokenPlatform:
+  Admin: "admin"
+  Api: "api"
+TeachConfig:
+  ApiDomain: "http://api.teach.fwei.net" #API域名
+  WwwDomain: "http://www.teach.fwei.net" #www站域名
+  AdminDomain: "http://admin.teach.fwei.net" #admin站域名
+  ResourceDomain: "http://resource.icloudedu.com" #资源域名
+  CoverSavePath: "/storage/app/cover/" #上传文件保存在路径, 该路径与 BasePath 进行拼接使用
+  CoverReturnPath: "/public/storage/cover/"  # 文件上后返回的路径，由于程序会自动创建软连接，自动将资源定位到实际路径，所有资源的访问入口建议都从public开始
+  CoverTemplatePath: "/public/storage/resources/cover_template/" #封面模板保存路径
+  CoverTitleFont: "/storage/app/resources/fonts/msyh.ttc" #封面标题字体
+  EmptyEndTime: "2050-01-01 00:00:00"
+  OrderExpireTime: 3600 #订单过期时间
+  LiveUnauthorizedRedirectUrl: "https://www.icloudedu.com" #未经授权跳转的地址

@@ -1,0 +1,38 @@
+package services
+
+import (
+	"github.com/gin-gonic/gin"
+	"goskeleton/app/global/consts"
+	"goskeleton/app/http/controller/api/admin"
+	commonDataType "goskeleton/app/http/validator/common/data_type"
+	"goskeleton/app/http/validator/core/data_transfer"
+	"goskeleton/app/utils/response"
+)
+
+type RecordIndex struct {
+	// 表单参数验证结构体支持匿名结构体嵌套
+	ServicesId float64 `json:"services_id" form:"services_id"`
+	State      float64 `json:"state" form:"state" binding:"min=0,max=3"`
+	commonDataType.Page
+}
+
+// 验证器语法，参见 Register.go文件，有详细说明
+
+func (validVal RecordIndex) CheckParams(context *gin.Context) {
+
+	//1.基本的验证规则没有通过
+	if err := context.ShouldBind(&validVal); err != nil {
+		response.ValidatorError(context, err)
+		return
+	}
+
+	//  该函数主要是将本结构体的字段（成员）按照 consts.ValidatorPrefix+ json标签对应的 键 => 值 形式绑定在上下文，便于下一步（控制器）可以直接通过 context.Get(键) 获取相关值
+	extraAddBindDataContext := data_transfer.DataAddContext(validVal, consts.ValidatorPrefix, context)
+	if extraAddBindDataContext == nil {
+		response.ErrorSystem(context, "数据检测失败", "")
+	} else {
+		// 验证完成，调用控制器,并将验证器成员(字段)递给控制器，保持上下文数据一致性
+		(&admin.Services{}).RecordIndex(extraAddBindDataContext)
+	}
+
+}

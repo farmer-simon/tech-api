@@ -1,0 +1,77 @@
+package admin
+
+import (
+	"github.com/farmer-simon/go-utils"
+	"github.com/gin-gonic/gin"
+	"goskeleton/app/data_type"
+	"goskeleton/app/global/consts"
+	"goskeleton/app/model"
+	"goskeleton/app/utils/data_bind"
+	"goskeleton/app/utils/response"
+	"math"
+	"time"
+)
+
+type Needs struct {
+}
+
+func (m *Needs) Index(ctx *gin.Context) {
+	page := ctx.GetFloat64(consts.ValidatorPrefix + "page")
+	limit := ctx.GetFloat64(consts.ValidatorPrefix + "limit")
+	offset := math.Max((page-1)*limit, 0)
+	var queryData data_type.NeedsQuery
+	if err := data_bind.ShouldBindFormDataToModel(ctx, &queryData); err == nil {
+		count, res := model.CreateNeedsFactory("").Index(&queryData, int(offset), int(limit))
+		response.Success(ctx, "SUCCESS", gin.H{
+			"list":  res,
+			"count": count,
+		})
+		return
+	}
+	response.Fail(ctx, -400100, "参数错误", gin.H{})
+}
+
+func (m *Needs) Info(ctx *gin.Context) {
+	query, _ := ctx.GetQuery("id")
+	id := utils.String2Int(query)
+	info := model.CreateNeedsFactory("").GetById(id)
+	if info == nil {
+		response.Fail(ctx, -400100, "需求不存在", gin.H{})
+		return
+	}
+	//处理过期时间
+	currentTime := time.Now().Unix()
+	info.ExpireTime = int64(math.Max(0, float64(info.ExpireTime-currentTime)))
+	author := model.CreateMemberFactory("").GetById(info.MembersId)
+	response.Success(ctx, "SUCCESS", gin.H{
+		"needs": info,
+		"author": gin.H{
+			"nick_name": author.NickName,
+			"id":        author.Id,
+		},
+	})
+}
+
+func (m *Needs) Verify(ctx *gin.Context) {
+	id := ctx.GetFloat64(consts.ValidatorPrefix + "id")
+	state := ctx.GetFloat64(consts.ValidatorPrefix + "state")
+	rejectReason := ctx.GetString(consts.ValidatorPrefix + "reject_reason")
+	pass := model.CreateNeedsFactory("").Verify(int(id), int(state), rejectReason)
+	if pass {
+		response.Success(ctx, consts.CurdStatusOkMsg, "操作成功")
+	} else {
+		response.Fail(ctx, consts.CurdCreatFailCode, "操作失败", "")
+	}
+}
+func (m *Needs) RecordIndex(ctx *gin.Context) {
+	needsId := ctx.GetFloat64(consts.ValidatorPrefix + "needs_id")
+	state := ctx.GetFloat64(consts.ValidatorPrefix + "state")
+	page := ctx.GetFloat64(consts.ValidatorPrefix + "page")
+	limit := ctx.GetFloat64(consts.ValidatorPrefix + "limit")
+
+	count, res := model.CreateNeedsRecordFactory("").AdminIndex(int(needsId), int(state), int(page), int(limit))
+	response.Success(ctx, "SUCCESS", gin.H{
+		"list":  res,
+		"count": count,
+	})
+}

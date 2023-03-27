@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>简单示例</title>
+</head>
+<body>
+<button onclick="get_chat_list()">获取聊天列表</button>
+<script src="http://sdk.263cv.net/livelog/log.js"></script>
+<script src="http://sdk.263cv.net/rtcsdk/rtcClient.global.js"></script>
+<script src="http://sdk.263cv.net/finesdk/finesdk.global.js"></script>
+<script src="http://simupdate.263.net/webplayersdk/webplayer-sdk.js"></script>
+<script type="text/javascript">
+
+    function test(res){
+        //TODO
+        if( res.data ){
+            if( res.popup.type!=""){
+                this.error = res.data.popup.message
+                this.dialogVisible = true
+                //播放器播放
+            } else if( res.data.play.type=="live"){
+                if (res.data.play.links.length>1){
+                    //弹框遍历links
+                } else {
+                    //直接打开res.data.play.links[0]
+                }
+            } else if( res.data.play.type=="video") {
+
+            }
+        }
+    }
+
+
+
+
+
+    const sdk = FineSdk.init({
+        // 管理后台申请的
+        appId: 'uDFHlR0krQ',
+        // 直播ID
+        webcastId: '1595715752520863791',
+        // 用户名
+        nickName: '张三',
+        // 角色
+        role: FineSdk.LiveRole.visitor // 观众
+    })
+
+    // 初始化成功后获取操作API
+    let chat = FineSdk.useChat(sdk)
+
+    const token = sessionStorage.getItem('finesdk-token')
+    const sid = sessionStorage.getItem('finesdk-sid')
+
+    // 初始化完成
+    sdk.on(FineSdk.Events.INIT, () => {
+        // 如果保存过认证信息则通过刷新方法认证
+        if (token && sid) {
+            sdk.refresh({ token, sid })
+        } else {
+            login()
+        }
+    })
+
+
+    // 事件完成后，可以安全调用其他模块Api
+    sdk.on(FineSdk.Events.JOIN_SUCCESS, () => {
+        set_token_sid()
+        get_chat_list()
+    })
+
+    // 聊天消息，获取聊天实例后能接收到事件
+    sdk.on(FineSdk.Events.CHAT_MSG_ADD, (msg) => {})
+
+    function login() {
+        // 无限制登录
+        if (sdk.loginType === 0) {
+            // 登录验证
+            sdk.login().then(([error, result]) => {
+                if(error === null) {
+                    console.log('登录成功', result)
+                }
+            })
+        }
+    }
+
+    // 保存token 和 sid 刷新浏览器后可调refresh认证
+    function set_token_sid() {
+        sessionStorage.setItem('finesdk-token', sdk.token)
+        sessionStorage.setItem('finesdk-sid', sdk.sid)
+    }
+
+    function get_chat_list() {
+        chat.getChatHistroyList(10).then((res) => {
+            console.log(res)
+        })
+    }
+</script>
+</body>
+</html>
+<body>
+<div id="player"></div>
+<script type="text/javascript">
+    const sdk = FineSdk.init({xxx})
+    // 初始化成功后获取操作API
+    let player = FineSdk.usePlayer(sdk)
+    sdk.on(FineSdk.Events.READY, async () => {
+        const [err, myPlayer] = await player.createPlayer(document.getElementById('player'), {
+            libPath: '../static/player/', // {配置地址}
+            resolution: 'hd',
+            type: 'flv',
+            style: { height: 400, width: 400 },
+            option: {
+                autoplay: true,
+            },
+            text: {
+                unstart: {
+                    pic: 'https://test.263live.net/clv/static/img/no-video.e0004b7.png',
+                    text: '暂无直播内容'
+                },
+                expired: {
+                    pic: 'https://test.263live.net/clv/static/img/no-video.e0004b7.png',
+                    text: '直播已过期'
+                },
+                preparing: {
+                    pic: 'https://test.263live.net/clv/static/img/no-video.e0004b7.png',
+                    text: '直播准备中'
+                }
+            }
+        })
+        window.myPlayer = myPlayer
+    })
+</script>
+</body>
+</html>
