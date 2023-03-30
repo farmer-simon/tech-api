@@ -17,8 +17,8 @@ import (
 )
 
 const (
-	AppKey         = "547cbd1f6dfe42caaec325250836d6fb"
-	AppSecret      = "d34f1a73f9a14dcd84ecf7c7c3c40a24"
+	AppKey         = "c4171071a2b14c16a935457772bac65c"
+	AppSecret      = "8530d44deaf441fbbb048f3ac66a9c82"
 	ApiSuccessCode = "40001"
 )
 
@@ -173,6 +173,54 @@ func (c *Client) SendMessage(userIds []string, message string) error {
 	if strings.Contains(rBody.PcUrl, "fwei.net") {
 		return nil
 	}
+	sBody, _ := json.Marshal(rBody)
+
+	client := &http.Client{}
+
+	r, _ := http.NewRequest("POST", apiUrl, strings.NewReader(string(sBody))) // URL-encoded payload
+	//r.Header.Set("Content-Type", "multipart/form-data")
+	r.Header.Add("token", token)
+	r.Header.Add("Content-Type", "application/json; charset=utf-8")
+	r.Header.Add("Content-Length", strconv.Itoa(len(sBody)))
+	resp, err := client.Do(r)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	var apiData map[string]interface{}
+	body, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(body))
+	if err := json.Unmarshal(body, &apiData); err != nil {
+		return err
+	}
+	if apiData["code"] != "1" {
+		return errors.New(apiData["error"].(string))
+	}
+
+	return nil
+}
+
+func (c *Client) SendSMS(mobiles []string, content string) error {
+	token, err := c.GetToken()
+	if err != nil {
+		return errors.New("获取Token失败，请联系管理员")
+	}
+
+	apiUrl := "http://sc.cqepc.cn:10001/message/sms/send"
+
+	type RequestBody struct {
+		ApplicationCode string   `json:"applicationCode"`
+		MobileNos       []string `json:"mobileNos"`
+		Content         string   `json:"content"`
+	}
+	//测试期仅发给测试号
+
+	var rBody = RequestBody{
+		ApplicationCode: "",
+		MobileNos:       mobiles,
+		Content:         content,
+	}
+
 	sBody, _ := json.Marshal(rBody)
 
 	client := &http.Client{}
