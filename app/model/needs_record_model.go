@@ -22,21 +22,21 @@ func (mod *NeedsRecordModel) TableName() string {
 	return "tech_needs_record"
 }
 
-//InsertRecord 提交需求
+// InsertRecord 提交需求
 func (mod *NeedsRecordModel) InsertRecord(membersId, servicesId int, content, tenderPrice string) error {
 	sql := "INSERT INTO `tech_needs_record`(members_id, needs_id, content, tender_price,price, start_time, end_time, attach, state) VALUES(?,?,?,?,?,?,?,?,?)"
 	res := mod.Exec(sql, membersId, servicesId, content, tenderPrice, "", 0, 0, "", 1)
 	return res.Error
 }
 
-//CloseRecord 关闭需求
+// CloseRecord 关闭需求
 func (mod *NeedsRecordModel) CloseRecord(id int) error {
 	sql := "UPDATE `tech_needs_record` SET state=? WHERE id=?"
 	res := mod.Exec(sql, 2, id)
 	return res.Error
 }
 
-//AcceptRecord 接受需求
+// AcceptRecord 接受需求
 func (mod *NeedsRecordModel) AcceptRecord(id int, price, startTime, endTime, attach string) error {
 	sTime := utils.DatetimeToUnixTimestamp(startTime + " 00:00:00")
 	eTime := utils.DatetimeToUnixTimestamp(endTime + " 23:59:59")
@@ -45,7 +45,7 @@ func (mod *NeedsRecordModel) AcceptRecord(id int, price, startTime, endTime, att
 	return res.Error
 }
 
-//GetRecordTotalByNeedsIds 根据服务IDS获取各服务的需求数量
+// GetRecordTotalByNeedsIds 根据服务IDS获取各服务的需求数量
 func (mod *NeedsRecordModel) GetRecordTotalByNeedsIds(ids []int) map[int]int {
 	var totals = make(map[int]int, 0)
 	var results []data_type.RecordTotal
@@ -58,7 +58,7 @@ func (mod *NeedsRecordModel) GetRecordTotalByNeedsIds(ids []int) map[int]int {
 	return totals
 }
 
-//Index 根据服务IDS获取各服务的需求数量
+// Index 根据服务IDS获取各服务的需求数量
 func (mod *NeedsRecordModel) Index(id, page, limit int) (count int64, res []NeedsRecordModel) {
 	offset := math.Max((float64(page)-1)*float64(limit), 0)
 	mod.Raw("SELECT COUNT(0) FROM `tech_needs_record` WHERE needs_id=?", id).Count(&count)
@@ -78,12 +78,12 @@ func (mod *NeedsRecordModel) GetById(id int) (res *NeedsRecordModel) {
 	return
 }
 
-//AdminIndex 后台的查看
+// AdminIndex 后台的查看
 func (mod *NeedsRecordModel) AdminIndex(needsId, state, page, limit int) (count int64, res []NeedsRecordModel) {
 	offset := math.Max((float64(page)-1)*float64(limit), 0)
 
 	var sql bytes.Buffer
-	sql.WriteString(" FROM tech_needs_record sr LEFT JOIN tech_members m ON sr.members_id=m.id LEFT JOIN tech_services s ON sr.needs_id=s.id LEFT JOIN tech_members sm ON s.members_id=sm.id WHERE ")
+	sql.WriteString(" FROM tech_needs_record sr LEFT JOIN tech_members m ON sr.members_id=m.id LEFT JOIN tech_needs s ON sr.needs_id=s.id LEFT JOIN tech_members sm ON s.members_id=sm.id WHERE ")
 	if state == 0 {
 		sql.WriteString(" sr.state IN (1,2,3)")
 	} else {

@@ -13,7 +13,7 @@ import (
 type Home struct {
 }
 
-//Index 首页
+// Index 首页
 func (u *Home) Index(ctx *gin.Context) {
 
 	//hotProject := project.CreateProjectServiceFactory().GetRecommend("hot", 4)
@@ -107,7 +107,7 @@ func (u *Home) trimContent(src string, length int) string {
 	src = re.ReplaceAllString(src, "\n")
 
 	c := strings.TrimSpace(src)
-	if len(c) < length {
+	if len([]rune(c)) < length {
 		return c
 	}
 	return utils.Substring(c, 0, length)

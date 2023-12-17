@@ -45,6 +45,10 @@ func (m *Needs) Info(ctx *gin.Context) {
 		response.Fail(ctx, -400100, "需求不存在", gin.H{})
 		return
 	}
+	membersId, _ := cur_userinfo.GetHomeCurrentUserId(ctx)
+	if membersId > 0 {
+		go model.CreateNeedsFactory("").UpdateHits(id)
+	}
 
 	//处理过期时间(返回剩余秒数)
 	currentTime := time.Now().Unix()

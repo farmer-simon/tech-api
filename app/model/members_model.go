@@ -23,7 +23,7 @@ func (mod *MemberModel) TableName() string {
 	return "tech_members"
 }
 
-//Index 后台列表
+// Index 后台列表
 func (mod *MemberModel) Index(q *data_type.MembersQuery, offset, limit int) (count int64, res []MemberModel) {
 	var sql bytes.Buffer
 	sql.WriteString(" FROM tech_members WHERE is_del=0 ")
@@ -59,7 +59,7 @@ func (mod *MemberModel) Index(q *data_type.MembersQuery, offset, limit int) (cou
 	return
 }
 
-//Insert 注册
+// Insert 注册
 func (mod *MemberModel) Insert(phone, nickName, realName, avatar, teamIntro, teamName, teamMajor, qq, wechat string) error {
 	state := 2
 	settings := CreateSettingsFactory("").GetSettings()
@@ -83,7 +83,7 @@ func (mod *MemberModel) UpdateExtendInfo(membersId int, data data_type.MembersEx
 	return nil
 }
 
-//GetByPhone 根据电话查信息
+// GetByPhone 根据电话查信息
 func (mod *MemberModel) GetByPhone(phone string) *MemberModel {
 	sql := "select *  from tech_members where  phone=? and is_del=0 limit 1"
 	result := mod.Raw(sql, phone).First(&mod)
@@ -93,7 +93,7 @@ func (mod *MemberModel) GetByPhone(phone string) *MemberModel {
 	return nil
 }
 
-//GetById 根据用户ID查询一条信息
+// GetById 根据用户ID查询一条信息
 func (mod *MemberModel) GetById(id int) *MemberModel {
 	sql := "SELECT  * FROM  `tech_members`  WHERE `is_del`=0 and   id=? LIMIT 1"
 	result := mod.Raw(sql, id).First(mod)
@@ -112,7 +112,7 @@ func (mod *MemberModel) QuickCreateByPhone(phone string) (*MemberModel, error) {
 	return nil, errors.New("帐号信息写入失败")
 }
 
-//BindPhone 绑定手机号
+// BindPhone 绑定手机号
 func (mod *MemberModel) BindPhone(id int, phone string) bool {
 	sql := "UPDATE tech_members SET phone=? WHERE id=? LIMIT 1"
 	if mod.Exec(sql, phone, id).RowsAffected > 0 {
@@ -129,7 +129,7 @@ func (mod *MemberModel) SetPasswd(id int, passwd string) bool {
 	return false
 }
 
-//Verify 更新状态
+// Verify 更新状态
 func (mod *MemberModel) Verify(id, state int, rejectReason string) bool {
 	sql := "UPDATE tech_members SET state=? ,reject_reason=?  WHERE id=? LIMIT 1"
 	if mod.Exec(sql, state, rejectReason, id).RowsAffected > 0 {

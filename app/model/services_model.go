@@ -23,7 +23,7 @@ func (mod *ServicesModel) TableName() string {
 	return "tech_services"
 }
 
-//Index 列表
+// Index 列表
 func (mod *ServicesModel) Index(q *data_type.ServicesQuery, offset, limit int) (count int64, res []NeedsModel) {
 	var sql bytes.Buffer
 	sql.WriteString(" FROM tech_services n LEFT JOIN tech_members m ON n.members_id=m.id LEFT JOIN tech_category c ON n.category_id=c.id WHERE n.is_del=0 ")
@@ -44,7 +44,7 @@ func (mod *ServicesModel) Index(q *data_type.ServicesQuery, offset, limit int) (
 			sql.WriteString(" AND n.title LIKE '%" + q.Title + "%'")
 		}
 		if q.Recommend == 1 {
-			sql.WriteString(" AND n.recommend = 1")
+			//sql.WriteString(" AND n.recommend = 1")
 		}
 		if q.Sort == "sale" {
 			sort = "ORDER BY n.hits DESC"
@@ -85,7 +85,7 @@ func (mod *ServicesModel) Index(q *data_type.ServicesQuery, offset, limit int) (
 	return
 }
 
-//Insert 添加
+// Insert 添加
 func (mod *ServicesModel) Insert(membersId, categoryId int, price float64, title, content, phone, wechat, qq string) (*ServicesModel, error) {
 	mod.MembersId = membersId
 	mod.CategoryId = categoryId
@@ -121,7 +121,7 @@ func (mod *ServicesModel) Edit(id, categoryId int, price float64, title, content
 	return nil
 }
 
-//GetById 根据用户ID查询一条信息
+// GetById 根据用户ID查询一条信息
 func (mod *ServicesModel) GetById(id int) *ServicesModel {
 	sql := "SELECT  n.*, c.name AS cate_name FROM  `tech_services` n LEFT JOIN `tech_category` c ON n.category_id=c.id  WHERE n.`is_del`=0 and n.id=? LIMIT 1"
 	result := mod.Raw(sql, id).First(&mod)
@@ -131,7 +131,11 @@ func (mod *ServicesModel) GetById(id int) *ServicesModel {
 	return nil
 }
 
-//Verify 更新状态
+func (mod *ServicesModel) UpdateHits(id int) {
+	mod.Exec("UPDATE tech_services SET hits=hits+1 WHERE id=?", id)
+}
+
+// Verify 更新状态
 func (mod *ServicesModel) Verify(id, state int, rejectReason string) bool {
 	sql := "UPDATE tech_services SET state=? ,reject_reason=?  WHERE id=? LIMIT 1"
 	if mod.Debug().Exec(sql, state, rejectReason, id).RowsAffected > 0 {
@@ -140,7 +144,7 @@ func (mod *ServicesModel) Verify(id, state int, rejectReason string) bool {
 	return false
 }
 
-//Delete 更新状态
+// Delete 更新状态
 func (mod *ServicesModel) Delete(id int) bool {
 	sql := "UPDATE tech_services SET is_del=1  WHERE id=? LIMIT 1"
 	if mod.Exec(sql, id).RowsAffected > 0 {

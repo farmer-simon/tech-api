@@ -71,6 +71,10 @@ func (m *Services) Info(ctx *gin.Context) {
 		response.Fail(ctx, -400100, "服务不存在", gin.H{})
 		return
 	}
+	membersId, _ := cur_userinfo.GetHomeCurrentUserId(ctx)
+	if membersId > 0 {
+		go model.CreateServicesFactory("").UpdateHits(id)
+	}
 
 	author := model.CreateMemberFactory("").GetById(info.MembersId)
 	attrs := model.CreateAttrsFactory("").GetByTargetId(int(info.Id), "services")

@@ -23,7 +23,7 @@ func (mod *NeedsModel) TableName() string {
 	return "tech_needs"
 }
 
-//Index 列表
+// Index 列表
 func (mod *NeedsModel) Index(q *data_type.NeedsQuery, offset, limit int) (count int64, res []NeedsModel) {
 	var sql bytes.Buffer
 	sql.WriteString(" FROM tech_needs n LEFT JOIN tech_members m ON n.members_id=m.id LEFT JOIN tech_category c ON n.category_id=c.id WHERE n.is_del=0 ")
@@ -44,7 +44,7 @@ func (mod *NeedsModel) Index(q *data_type.NeedsQuery, offset, limit int) (count 
 			sql.WriteString(" AND n.title LIKE '%" + q.Title + "%'")
 		}
 		if q.Recommend == 1 {
-			sql.WriteString(" AND n.recommend = 1")
+			//sql.WriteString(" AND n.recommend = 1")
 		}
 		if q.Sort == "sale" {
 			sort = "ORDER BY n.hits DESC"
@@ -85,7 +85,7 @@ func (mod *NeedsModel) Index(q *data_type.NeedsQuery, offset, limit int) (count 
 	return
 }
 
-//Insert 添加
+// Insert 添加
 func (mod *NeedsModel) Insert(membersId, categoryId int, price float64, title, content, phone, wechat, qq, expireTime string) error {
 	state := 2
 	settings := CreateSettingsFactory("").GetSettings()
@@ -113,7 +113,7 @@ func (mod *NeedsModel) Edit(id, categoryId int, price float64, title, content, p
 	return nil
 }
 
-//GetById 根据用户ID查询一条信息
+// GetById 根据用户ID查询一条信息
 func (mod *NeedsModel) GetById(id int) *NeedsModel {
 	sql := "SELECT  n.*, c.name AS cate_name FROM  `tech_needs` n LEFT JOIN `tech_category` c ON n.category_id=c.id  WHERE n.`is_del`=0 and n.id=? LIMIT 1"
 	result := mod.Raw(sql, id).First(&mod)
@@ -123,7 +123,11 @@ func (mod *NeedsModel) GetById(id int) *NeedsModel {
 	return nil
 }
 
-//Verify 更新状态
+func (mod *NeedsModel) UpdateHits(id int) {
+	mod.Exec("UPDATE tech_needs SET hits=hits+1 WHERE id=?", id)
+}
+
+// Verify 更新状态
 func (mod *NeedsModel) Verify(id, state int, rejectReason string) bool {
 	sql := "UPDATE tech_needs SET state=? ,reject_reason=?  WHERE id=? LIMIT 1"
 	if mod.Debug().Exec(sql, state, rejectReason, id).RowsAffected > 0 {
@@ -132,7 +136,7 @@ func (mod *NeedsModel) Verify(id, state int, rejectReason string) bool {
 	return false
 }
 
-//Delete 更新状态
+// Delete 更新状态
 func (mod *NeedsModel) Delete(id int) bool {
 	sql := "UPDATE tech_needs SET is_del=1  WHERE id=? LIMIT 1"
 	if mod.Exec(sql, id).RowsAffected > 0 {

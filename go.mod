@@ -3,10 +3,6 @@ module goskeleton
 go 1.15
 
 require (
-	github.com/alibabacloud-go/darabonba-openapi/v2 v2.0.0
-	github.com/alibabacloud-go/dysmsapi-20170525/v3 v3.0.4
-	github.com/alibabacloud-go/tea v1.1.19
-	github.com/alibabacloud-go/tea-utils v1.4.3 // indirect
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1843
 	github.com/casbin/casbin/v2 v2.51.2
 	github.com/casbin/gorm-adapter/v3 v3.7.4
@@ -17,7 +13,6 @@ require (
 	github.com/fsnotify/fsnotify v1.5.4
 	github.com/gin-contrib/pprof v1.4.0
 	github.com/gin-gonic/gin v1.8.1
-	github.com/go-pay/gopay v1.5.86
 	github.com/go-playground/locales v0.14.0
 	github.com/go-playground/universal-translator v0.18.0
 	github.com/go-playground/validator/v10 v10.11.0
@@ -30,6 +25,7 @@ require (
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/viper v1.12.0
 	go.uber.org/zap v1.22.0
+	golang.org/x/crypto v0.0.0-20220926161630-eccd6366d1be // indirect
 	gorm.io/driver/mysql v1.3.5
 	gorm.io/driver/postgres v1.3.8
 	gorm.io/driver/sqlserver v1.3.2
